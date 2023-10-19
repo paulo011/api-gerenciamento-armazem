@@ -12,11 +12,11 @@ Api de gerenciamento de armazém open source.
 ```mermaid
 
 classDiagram
-  class Armazem{
+  class Warehouse{
     -Long id
-    -Long userId
-    -Long ProductId
-    -ProductHistoric[] productHistoric
+    -String name
+    -User[] userList
+    -Product[] ProductList
   }
   class User {
     -Long id
@@ -29,8 +29,8 @@ classDiagram
 
   class ProductHistoric {
     -Long id
-    -Long productId
-    -Long userId
+    -Product product
+    -User user
     -Date date
     -Transaction transaction
     -String description
@@ -46,41 +46,37 @@ classDiagram
     -String complement
   }
   class Product {
-    -barcode
-    -productName
-    -description
+    -String barcode
+    -String name
+    -String description
     -Float value
-    -Size Size
+    -Float width
+    -Float height
     -Float weight
     -Category category
     -Boolean inStock
+    -ProductHistoric[] productHistoric
   }
 
   class Category{
     -Long id,
-    -String tipe
+    -String type
   }
-  class Size {
-    -Float width
-    -Float height
-  } 
+ 
   class TransactionEnum{
-    added,
-    deduct,
-    return
+    ADDED,
+    REMOVED
   }
   class RoleEnum{
-    user,
-    adm
+    USER,
+    MANAGER
   }
-  Armazem "1" *-- "*" User
-  Armazem "1" o-- "*" ProductHistoric
-  Armazem "1" *-- "*" Product
+  Warehouse "1" *-- "*" User
+  Warehouse "1" *-- "*" Product
   User "*" o-- "1" Address
   User "1" *--* "*" RoleEnum
-  Product "1" *-- "1" Size
   Product "*" o-- "1" Category
   ProductHistoric "1" *--* "1" TransactionEnum
-  ProductHistoric "1" --* "1" User
-  ProductHistoric "1" --* "1" Product
+  ProductHistoric "*" --* "1" User
+  ProductHistoric "*" --* "1" Product
 
