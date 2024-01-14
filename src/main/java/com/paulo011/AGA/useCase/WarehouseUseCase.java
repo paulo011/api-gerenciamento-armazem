@@ -15,6 +15,20 @@ public class WarehouseUseCase {
         this.warehouseRepository = warehouseRepository;
     }
 
+    public static Map<String, String> mapGeneratorForUser(Warehouse warehouse){
+        Map<String, String> usersMap = new HashMap<>();
+        warehouse.getUserList().forEach(
+                user -> usersMap.putIfAbsent(user.getCpf(), user.getFirstName()));
+        return usersMap;
+    }
+
+    public static Map<UUID, String> mapGeneratorForProduct(Warehouse warehouse){
+        Map<UUID, String> productsMap = new HashMap<>();
+        warehouse.getProductList().forEach(
+                product -> productsMap.putIfAbsent(product.getCode(), product.getName()));
+        return productsMap;
+    }
+
     public void createWarehouse(WarehouseRequestDTO warehouseRequestDTO){
         Warehouse warehouse = new Warehouse(
                 null,
@@ -28,39 +42,23 @@ public class WarehouseUseCase {
     public List<WarehouseResponseDTO> findAllWarehouses(){
         List<Warehouse> warehouseList = warehouseRepository.findAll();
 
-        Map<String, String> usersMap = new HashMap<>();
-        Map<UUID, String> productsMap = new HashMap<>();
-        warehouseList.forEach(warehouse -> {
-            warehouse.getUserList().forEach(user ->
-                    usersMap.putIfAbsent(user.getCpf(), user.getFirstName()));
-            warehouse.getProductList().forEach(product ->
-                    productsMap.putIfAbsent(product.getCode(), product.getName()));
-        });
-
         return warehouseList.stream().map(warehouse ->
                 new WarehouseResponseDTO(
                         warehouse.getId(),
                         warehouse.getName(),
-                        usersMap,
-                        productsMap
+                        mapGeneratorForUser(warehouse),
+                        mapGeneratorForProduct(warehouse)
                 )).toList();
     }
 
     public WarehouseResponseDTO findWarehouse(UUID warehouseId){
         Warehouse warehouse = warehouseRepository.findById(warehouseId);
 
-        Map<String, String>usersMap = new HashMap<>();
-        Map<UUID, String> productsMap = new HashMap<>();
-        warehouse.getUserList().forEach(
-                user -> usersMap.putIfAbsent(user.getCpf(), user.getFirstName()));
-        warehouse.getProductList().forEach(
-                product -> productsMap.putIfAbsent(product.getCode(), product.getName()));
-
         return new WarehouseResponseDTO(
                 warehouse.getId(),
                 warehouse.getName(),
-                usersMap,
-                productsMap);
+                mapGeneratorForUser(warehouse),
+                mapGeneratorForProduct(warehouse));
     }
 
     public void updateWarehouse(UUID id, UpdateRequestDTO updateRequestDTO){
